@@ -67,8 +67,7 @@ class Sparks(commands.AutoShardedBot):
     def load_all(self):
         success, total = 0, 0
 
-        for i in [f.replace(".py", "") for f in os.listdir("cogs") if os.path.isfile("cogs/" + f)
-        ]:
+        for i in [f.replace(".py", "") for f in os.listdir("cogs") if os.path.isfile("cogs/" + f)]:
             total += 1
             if self.load_module(i):
                 success += 1
