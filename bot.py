@@ -15,7 +15,13 @@ class Sparks(commands.AutoShardedBot):
 
         if not os.path.isdir("cogs"):
             os.mkdir("cogs")
-        self.run(bd.conf["token"])
+
+        try:
+            self.run(bd.conf["token"])
+        except discord.LoginFailure:
+            print("Token reset required.")
+            input("Press Enter to exit.")
+            raise SystemExit()
 
     async def on_connect(self):
         cOut(
