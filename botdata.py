@@ -95,3 +95,9 @@ def modServer(sid, col, newvalue):
         return getServer(sid)
     except Exception as e:
         return e
+
+
+if __name__ == "__main__":
+    print("This file does nothing.")
+    input("Press Enter to exit.")
+    raise SystemExit()

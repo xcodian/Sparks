@@ -15,7 +15,7 @@ class Sparks(commands.AutoShardedBot):
 
         if not os.path.isdir("cogs"):
             os.mkdir("cogs")
-        self.run(bd.conf["description"])
+        self.run(bd.conf["token"])
 
     async def on_connect(self):
         cOut(
