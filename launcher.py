@@ -3,12 +3,14 @@
 import json
 import os
 import sys
+
+
 def launch():
     if sys.version_info[0] < 3:
         print("Python version 3 or higher required.")
         input("Press enter to exit.")
         raise SystemExit()
-      
+
     try:
         import discord
         from discord.ext import commands
@@ -17,7 +19,7 @@ def launch():
         print("Dependency error: {}".format(e))
         input("Press enter to exit.")
         raise SystemExit()
- 
+
     try:
         with open("config.json") as f:
             config = json.load(f)
