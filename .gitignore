@@ -105,3 +105,5 @@ venv.bak/
 
 config.json
 guild_data.db
+
+.idea/
