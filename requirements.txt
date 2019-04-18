@@ -1,2 +1,2 @@
 pip
-git+https://github.com/Rapptz/discord.py@master#egg=discord.py[voice]
+discord.py[voice]
