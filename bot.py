@@ -1,31 +1,12 @@
-from debug import cOut
-
-def preflight_checks():
-    import time
-    try:
-        from discord.ext import commands
-        import discord
-        import asyncio
-
-        import json
-        import time
-        import os
-
-    except ImportError:
-        cOut("Libraries are missing, please install them before proceeding.")
-        time.sleep(3)
-        exit(-1)
-    return True
-
-preflight_checks()
-cOut("Dependencies Resolved.")
-
-import botdata as bd
-from discord.ext import commands
-import discord
-import asyncio
+# -*- coding: utf-8 -*-
 
 import os
+
+import discord
+from discord.ext import commands
+
+import botdata as bd
+from debug import cOut
 
 
 class Sparks(commands.AutoShardedBot):
@@ -34,11 +15,12 @@ class Sparks(commands.AutoShardedBot):
 
         if not os.path.isdir("cogs"):
             os.mkdir("cogs")
-
-        self.run(bd.conf["token"])
+        self.run(bd.conf["description"])
 
     async def on_connect(self):
-        cOut("Connection established with latency: {}ms".format(int(self.latency*1000)))
+        cOut(
+            "Connection established with latency: {}ms".format(int(self.latency * 1000))
+        )
 
     async def on_disconnect(self):
         cOut("Client has lost connection.")
@@ -78,13 +60,26 @@ class Sparks(commands.AutoShardedBot):
     def load_all(self):
         success, total = 0, 0
 
-        for i in [f.replace(".py", "") for f in os.listdir("cogs") if os.path.isfile("cogs/"+f)]:
+        for i in [
+            f.replace(".py", "")
+            for f in os.listdir("cogs")
+            if os.path.isfile("cogs/" + f)
+        ]:
             total += 1
             if self.load_module(i):
                 success += 1
         cOut("Finished loading modules. ({}/{} Successful)".format(success, total))
 
     def welcome(self, guild):
-        return discord.Embed(color=discord.Color.blue(), description=":white_check_mark: ``Thanks for adding me to your guild, '{}'!``".format(guild.name))
+        return discord.Embed(
+            color=discord.Color.blue(),
+            description=":white_check_mark: ``Thanks for adding me to your guild, '{}'!``".format(
+                guild.name
+            ),
+        )
 
-bot = Sparks()
+
+if __name__ == "__main__":
+    print("This file does nothing.")
+    input("Press Enter to exit.")
+    raise SystemExit()
