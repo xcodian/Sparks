@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import json
 import os
 
 import discord
@@ -20,14 +21,19 @@ class Sparks(commands.AutoShardedBot):
             self.run(bd.conf["token"])
         except discord.LoginFailure:
             cOut("Token invalid. Authentication failiure.")
-            
+
             # RESET TOKEN
             bd.conf["token"] = ""
+            with open("config.json", "w") as f:
+                json.dump(bd.conf, f, indent=4)
+
             input("Press Enter to exit.")
             raise SystemExit()
 
     async def on_connect(self):
-        cOut("Connection established with latency: {}ms".format(int(self.latency * 1000)))
+        cOut(
+            "Connection established with latency: {}ms".format(int(self.latency * 1000))
+        )
 
     async def on_disconnect(self):
         cOut("Client has lost connection.")
@@ -67,15 +73,23 @@ class Sparks(commands.AutoShardedBot):
     def load_all(self):
         success, total = 0, 0
 
-        for i in [f.replace(".py", "") for f in os.listdir("cogs") if os.path.isfile("cogs/" + f)]:
+        for i in [
+            f.replace(".py", "")
+            for f in os.listdir("cogs")
+            if os.path.isfile("cogs/" + f)
+        ]:
             total += 1
             if self.load_module(i):
                 success += 1
         cOut("Finished loading modules. ({}/{} Successful)".format(success, total))
 
     def welcome(self, guild):
-        return discord.Embed(color=discord.Color.blue(), 
-                             description=":white_check_mark: ``Thanks for adding me to your guild, '{}'!``".format(guild.name))
+        return discord.Embed(
+            color=discord.Color.blue(),
+            description=":white_check_mark: ``Thanks for adding me to your guild, '{}'!``".format(
+                guild.name
+            ),
+        )
 
 
 if __name__ == "__main__":
