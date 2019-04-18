@@ -1,0 +1,2 @@
+# Sparks
+Sparks Discord Bot
