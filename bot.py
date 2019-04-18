@@ -31,9 +31,7 @@ class Sparks(commands.AutoShardedBot):
             raise SystemExit()
 
     async def on_connect(self):
-        cOut(
-            "Connection established with latency: {}ms".format(int(self.latency * 1000))
-        )
+        cOut("Connection established with latency: {}ms".format(int(self.latency * 1000)))
 
     async def on_disconnect(self):
         cOut("Client has lost connection.")
@@ -84,12 +82,8 @@ class Sparks(commands.AutoShardedBot):
         cOut("Finished loading modules. ({}/{} Successful)".format(success, total))
 
     def welcome(self, guild):
-        return discord.Embed(
-            color=discord.Color.blue(),
-            description=":white_check_mark: ``Thanks for adding me to your guild, '{}'!``".format(
-                guild.name
-            ),
-        )
+        return discord.Embed(color=discord.Color.blue(),
+                             description=":white_check_mark: ``Thanks for adding me to your guild, '{}'!``".format(guild.name))
 
 
 if __name__ == "__main__":
