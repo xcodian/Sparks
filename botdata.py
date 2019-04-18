@@ -70,7 +70,7 @@ def getServer(sid):
 def addServer(sid):
     cur.execute(
         "INSERT INTO gconfig VALUES ('{}', '{}', 'N/A', 'N/A', 'N/A')".format(
-            sid, conf["deafult_prefix"]
+            sid, conf["default_prefix"]
         )
     )
     db.commit()

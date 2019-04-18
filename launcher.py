@@ -4,8 +4,6 @@ import json
 import os
 from subprocess import CalledProcessError
 
-from bot import Sparks
-
 
 def launch():
     try:
@@ -30,6 +28,8 @@ def launch():
 
     with open("config.json", "w+") as f:
         json.dump(config, f, indent=4)
+
+    from bot import Sparks
 
     Sparks()
 
