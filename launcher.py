@@ -12,7 +12,7 @@ def launch():
         with open("config.json") as f:
             config = json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
-        with open("config.json", "w+") as f:
+        with open("config.json", "w") as f:
             model = {"token": "", "default_prefix": "$", "description": ""}
 
             json.dump(model, f, indent=4)
