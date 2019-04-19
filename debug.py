@@ -53,4 +53,7 @@ def flagParse(txt, acc_flags):
 
 
 def error(text: str):
-    return discord.Embed(description="``{}``".format(text), colour=0xE06C75)
+    return discord.Embed(description="{}".format(text), colour=0xE06C75)
+
+def embedOut(text: str):
+    return discord.Embed(description="{}".format(text), colour=discord.Colour.blue())
