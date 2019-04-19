@@ -14,10 +14,10 @@ class ErrorHanlder(commands.Cog):
         if hasattr(ctx.command, 'on_error'):
             return
 
-        if isinstance(e, commands.MissingRequiredArgument):
+        elif isinstance(e, commands.MissingRequiredArgument):
             await ctx.send(embed=error("Missing required argument."))
 
-        if isinstance(e, commands.MissingPermissions):
+        elif isinstance(e, commands.MissingPermissions):
             await ctx.send(embed=error("You don't have the permissions to do this!"))
 
         elif isinstance(e, commands.BotMissingPermissions):
