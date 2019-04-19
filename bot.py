@@ -5,10 +5,10 @@ import os
 
 import discord
 from discord.ext import commands
+from aiohttp.client_exceptions import ClientConnectionError
 
 import botdata as bd
-from debug import cOut
-
+from debug import cOut, end
 
 class Sparks(commands.AutoShardedBot):
     def __init__(self):
@@ -18,23 +18,37 @@ class Sparks(commands.AutoShardedBot):
             os.mkdir("cogs")
 
         try:
+            print("\n-----")
+            cOut("Starting bot session...")
             self.run(bd.conf["token"])
-        except discord.LoginFailure:
-            cOut("Token invalid. Authentication failiure.")
+
+        except discord.LoginFailure as e:
+            cOut("Authentication error: {}".format(e))
 
             # RESET TOKEN
             bd.conf["token"] = ""
             with open("config.json", "w") as f:
                 json.dump(bd.conf, f, indent=4)
 
-            input("Press Enter to exit.")
-            raise SystemExit()
+            raise end()
+
+        except ClientConnectionError as e:
+            cOut("Connection error: {}".format(e))
+            raise end()
+
+        except Exception as e:
+            cOut("Launch error: {}".format(e))
+            raise end()
+
 
     async def on_connect(self):
         cOut("Connection established with latency: {}ms".format(int(self.latency * 1000)))
 
     async def on_disconnect(self):
         cOut("Client has lost connection.")
+
+    async def on_resume(self):
+        cOut("Client has regained connection.")
 
     async def on_ready(self):
         cOut("Bot is now accepting commands.\n-----")
@@ -71,11 +85,7 @@ class Sparks(commands.AutoShardedBot):
     def load_all(self):
         success, total = 0, 0
 
-        for i in [
-            f.replace(".py", "")
-            for f in os.listdir("cogs")
-            if os.path.isfile("cogs/" + f)
-        ]:
+        for i in [f.replace(".py", "") for f in os.listdir("cogs") if os.path.isfile("cogs/" + f)]:
             total += 1
             if self.load_module(i):
                 success += 1
@@ -88,5 +98,4 @@ class Sparks(commands.AutoShardedBot):
 
 if __name__ == "__main__":
     print("Please start the program via launcher.py.")
-    input("Press Enter to exit.")
-    raise SystemExit()
+    raise end()

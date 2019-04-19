@@ -4,7 +4,7 @@ import json
 import sqlite3
 import time
 
-from debug import cOut
+from debug import cOut, end
 
 
 def dict_factory(cursor, row):
@@ -20,8 +20,6 @@ cur = db.cursor()
 
 
 def load_config():
-    # We don't need to catch errors here.
-    # It is all done before this is imported.
     with open("config.json") as f:
         return json.load(f)
 
@@ -40,22 +38,17 @@ def preflight_checks():
                     pass
 
     try:
-        cur.execute(
-            "CREATE TABLE gconfig (id, prefix, starboard, welcome, announcements)"
-        )
+        cur.execute("CREATE TABLE gconfig (id, prefix, starboard, welcome, announcements)")
+
     except Exception as e:
         if isinstance(e, sqlite3.OperationalError):
-            rebuild_cols(
-                "config", ["id", "prefix", "starboard", "welcome", "announcements"]
-            )
+            rebuild_cols("config", ["id", "prefix", "starboard", "welcome", "announcements"])
 
     try:
         cur.execute("CREATE TABLE gconfig (id, prefix)")
     except Exception as e:
         if isinstance(e, sqlite3.OperationalError):
-            rebuild_cols(
-                "config", ["id", "prefix", "starboard", "welcome", "announcements"]
-            )
+            rebuild_cols("config", ["id", "prefix", "starboard", "welcome", "announcements"])
 
 
 preflight_checks()
@@ -68,11 +61,7 @@ def getServer(sid):
 
 
 def addServer(sid):
-    cur.execute(
-        "INSERT INTO gconfig VALUES ('{}', '{}', 'N/A', 'N/A', 'N/A')".format(
-            sid, conf["default_prefix"]
-        )
-    )
+    cur.execute("INSERT INTO gconfig VALUES ('{}', '{}', 'N/A', 'N/A', 'N/A')".format(sid, conf["default_prefix"]))
     db.commit()
     return getServer(sid)
 
@@ -88,16 +77,11 @@ def delServer(sid):
 
 def modServer(sid, col, newvalue):
     try:
-        cur.execute(
-            "UPDATE gconfig SET {} = '{}' WHERE id = '{}'".format(col, newvalue, sid)
-        )
+        cur.execute("UPDATE gconfig SET {} = '{}' WHERE id = '{}'".format(col, newvalue, sid))
         db.commit()
         return getServer(sid)
     except Exception as e:
         return e
 
-
 if __name__ == "__main__":
-    print("This file does nothing.")
-    input("Press Enter to exit.")
-    raise SystemExit()
+    raise end()

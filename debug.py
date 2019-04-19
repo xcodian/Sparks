@@ -7,3 +7,7 @@ def cOut(msg):
 
     h, m, s = clock
     print("[{}:{}:{}] > {}".format(h, m, s, msg))
+
+def end(text = "Press enter to exit."):
+    input(text)
+    return SystemExit

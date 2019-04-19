@@ -6,6 +6,8 @@ import sys
 def launch():
     if sys.version_info[0] < 3:
         print("Python version 3 or higher required.")
+
+        # cannot use debug.end here since it may not be installed.
         input("Press enter to exit.")
         raise SystemExit()
       
@@ -13,8 +15,13 @@ def launch():
         import discord
         from discord.ext import commands
         import sqlite3
+
+        import debug
+
     except ImportError as e:
         print("Dependency error: {}".format(e))
+
+        # cannot use debug.end here since it may not be installed.
         input("Press enter to exit.")
         raise SystemExit()
  
@@ -34,7 +41,7 @@ def launch():
 
     if config["token"] is "":
         config["token"] = input("TOKEN: ")
-        print("\n-----")
+
 
     with open("config.json", "w+") as f:
         json.dump(config, f, indent=4)
