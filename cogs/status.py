@@ -21,7 +21,7 @@ class Status(commands.Cog):
         embed = discord.Embed(colour=discord.Colour.blurple())
         uptime = int(time.time() - self.bot.startTime)
 
-        embed.description = uptime
+        embed.description = "Uptime: {} seconds".format(uptime)
         await ctx.send(embed=embed)
 
 
