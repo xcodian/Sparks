@@ -1,3 +1,6 @@
+import discord
+from discord.ext import commands
+
 def cOut(msg):
     import time
 
@@ -13,13 +16,6 @@ def cOut(msg):
 def end(text="Press enter to exit."):
     input(text)
     return SystemExit
-
-
-# Provide any string such as "-flag1 flag1_arg1 -flag2 -flag2_arg1 flag2_arg2"
-# Provide how much args each flag takes as a dict {"-flag1":1, "-flag2":2}
-
-# If there is a flag that demands an argument, it will take the next one in regardless of if it's got a "-" prefixing it.
-# eg. flags -flag2 takes 2 additional args so it will take both "-flag2_arg1" and "flag2_arg2" as its args.
 
 
 def flagParse(txt, acc_flags):
@@ -51,3 +47,6 @@ def flagParse(txt, acc_flags):
         return Exception("Not enough arguments supplied.")
 
     return output
+
+def error(text):
+    return discord.Embed(description=str(text), color=0xe06c75)
