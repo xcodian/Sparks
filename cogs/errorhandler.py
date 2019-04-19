@@ -15,7 +15,7 @@ class ErrorHanlder(commands.Cog):
             return
 
         if isinstance(e, commands.MissingRequiredArgument):
-            await ctx.send(embed=error("Missing required argument: '{}'".format(e.param)))
+            await ctx.send(embed=error("Missing required argument."))
 
         if isinstance(e, commands.MissingPermissions):
             await ctx.send(embed=error("You don't have the permissions to do this!"))
@@ -40,9 +40,7 @@ class ErrorHanlder(commands.Cog):
             await ctx.message.remove_reaction("❔", self.bot.user)
 
         else:
-            await ctx.send(embed=error("An internal error has occurred! This isn't your fault, and will probably be fixed in the next update.\n "
-                                       "Feel free to raise an issue on https://github.com/xxcodianxx/Sparks if this issue is persistent."))
-
+            await ctx.send(embed=error("An internal error has occurred! This isn't your fault, and will probably be fixed in the next update. Feel free to raise an issue on https://github.com/xxcodianxx/Sparks if this issue is persistent."))
             traceback.print_exception(type(e), e, e.__traceback__)
 
 
