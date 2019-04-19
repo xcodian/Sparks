@@ -11,7 +11,7 @@ class Status(commands.Cog):
     @commands.command(name="ping", brief="Get the connection latency.")
     async def ping(self, ctx):
         embed = discord.Embed(
-            description=":stopwatch: {}ms".format(int(self.bot.latency * 1000)), color=discord.Color.blurple()
+            description=":stopwatch: {}ms".format(int(self.bot.latency * 1000)), colour=discord.Colour.blurple()
         )
         await ctx.send(embed=embed)
 
