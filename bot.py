@@ -22,6 +22,7 @@ class Sparks(commands.AutoShardedBot):
         try:
             print("\n-----")
             cOut("Starting bot session...")
+            self.maintenance = False
             self.run(bd.conf["token"])
 
         except discord.LoginFailure as e:
@@ -42,14 +43,18 @@ class Sparks(commands.AutoShardedBot):
             cOut("Launch error: {}".format(e))
             raise end()
 
+
     async def on_connect(self):
         cOut("Connection established with latency: {}ms".format(int(self.latency * 1000)))
+
 
     async def on_disconnect(self):
         cOut("Client has lost connection.")
 
+
     async def on_resume(self):
         cOut("Client has regained connection.")
+
 
     async def on_ready(self):
         cOut("Bot is now accepting commands.\n-----")
@@ -59,6 +64,15 @@ class Sparks(commands.AutoShardedBot):
 
         self.load_all()
         self.startTime = time.time()
+
+    async def on_message(self, message):
+        if message.author.bot:
+            return
+
+        if not self.maintenance or await self.is_owner(message.author):
+            await self.process_commands(message)
+        else:
+            await message.channel.send(embed=error("The bot is currently in maintenance mode. Please try again later."))
 
     async def get_prefix(self, message):
         if bd.getServer(message.guild.id) is None:
@@ -70,8 +84,10 @@ class Sparks(commands.AutoShardedBot):
         bd.addServer(guild.id)
         await guild.owner.send(embed=self.welcome(guild))
 
+
     async def on_guild_remove(self, guild):
         bd.delServer(guild.id)
+
 
     #  N O N  -  A S Y N C  #
 
@@ -84,6 +100,7 @@ class Sparks(commands.AutoShardedBot):
             cOut("Failed to load module {}: {}".format(module, e))
             return e
 
+
     def load_all(self):
         success, total = 0, 0
 
@@ -92,6 +109,7 @@ class Sparks(commands.AutoShardedBot):
             if self.load_module(i):
                 success += 1
         cOut("Finished loading modules. ({}/{} Successful)".format(success, total))
+
 
     def welcome(self, guild):
         return discord.Embed(

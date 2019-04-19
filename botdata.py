@@ -5,6 +5,7 @@ import sqlite3
 import time
 
 from debug import cOut, end
+import bot
 
 
 def dict_factory(cursor, row):
@@ -83,6 +84,23 @@ def modServer(sid, col, newvalue):
     except Exception as e:
         return e
 
+def rebuild_all(guilds):
+    for guild in guilds:
+        rebuild_one(guild.id)
+
+def rebuild_one(sid):
+    backup = getServer(sid)
+    if backup is None:
+        addServer(sid)
+        return True
+
+    cur.execute("DELETE FROM gconfig WHERE id = {}".format(sid))
+    db.commit()
+
+    addServer(sid)
+    for k, v in zip(backup.keys(), backup.values()):
+        modServer(sid, k, v)
+    return True
 
 if __name__ == "__main__":
     raise end()

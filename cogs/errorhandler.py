@@ -5,7 +5,7 @@ from debug import error
 import traceback
 import asyncio
 
-class ErrorHanlder(commands.Cog):
+class ErrorHandler(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -45,4 +45,4 @@ class ErrorHanlder(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(ErrorHanlder(bot))
+    bot.add_cog(ErrorHandler(bot))

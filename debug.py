@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import discord
+import asyncio
 from discord.ext import commands
 
 
@@ -26,6 +27,11 @@ def flagParse(txt, acc_flags):
     demand = 0
     belongsto = None
 
+    txt = txt.lstrip(" ").rstrip(" ")
+
+    if txt == "":
+        return {}
+
     for i in txt.split(" "):
         if (i in acc_flags) and demand == 0:
             demand = acc_flags[i]  # get the demand of args for that flag
@@ -38,7 +44,7 @@ def flagParse(txt, acc_flags):
         else:
             # is arg
             if demand == 0:  # exceeds accepted args for the flag; no demand
-                return Exception("Unexpected argument '{}'".format(i))
+                return commands.BadArgument
 
             else:
                 # add it as an arg to the flag it belongs to
@@ -47,7 +53,7 @@ def flagParse(txt, acc_flags):
                 demand -= 1
 
     if demand > 0:  # if there is still demand
-        return Exception("Not enough arguments supplied.")
+        return commands.MissingRequiredArgument
 
     return output
 
@@ -56,4 +62,18 @@ def error(text: str):
     return discord.Embed(description="{}".format(text), colour=0xE06C75)
 
 def embedOut(text: str):
-    return discord.Embed(description="{}".format(text), colour=discord.Colour.blue())
+    return discord.Embed(description="{}".format(text), colour=discord.Colour.green())
+
+async def survey(bot, ctx, timeout=10):
+    try:
+        def check(m):
+            return ctx.author == m.author
+
+        msg = await bot.wait_for('message', timeout=timeout, check=check)
+        return msg
+    except asyncio.TimeoutError:
+        return asyncio.TimeoutError
+
+def set_maintenance(bot, value):
+    bot.maintenance = value
+    return ":unlock: Bot open to public." if not bot.maintenance else ":lock: Bot closed for maintenance."
