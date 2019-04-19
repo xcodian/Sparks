@@ -3,6 +3,8 @@
 import json
 import os
 import sys
+
+
 def launch():
     if sys.version_info[0] < 3:
         print("Python version 3 or higher required.")
@@ -10,7 +12,7 @@ def launch():
         # cannot use debug.end here since it may not be installed.
         input("Press enter to exit.")
         raise SystemExit()
-      
+
     try:
         import discord
         from discord.ext import commands
@@ -24,7 +26,7 @@ def launch():
         # cannot use debug.end here since it may not be installed.
         input("Press enter to exit.")
         raise SystemExit()
- 
+
     try:
         with open("config.json") as f:
             config = json.load(f)
@@ -42,11 +44,11 @@ def launch():
     if config["token"] is "":
         config["token"] = input("TOKEN: ")
 
-
     with open("config.json", "w+") as f:
         json.dump(config, f, indent=4)
 
     from bot import Sparks
+
     Sparks()
 
 
