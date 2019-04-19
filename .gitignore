@@ -103,7 +103,10 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+# config and database
 config.json
 guild_data.db
 
+# IDE stuff
 .idea/
+.vscode/

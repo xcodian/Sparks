@@ -1,14 +1,16 @@
 # Sparks
-Sparks Discord Bot
 
-Requirements:
+A Discord bot created using [discord.py](https://github.com/Rapptz/discord.py "discord.py").
 
-> **discord.py v1.1.0+**
+## Usage
 
-> **pysqlite3**
+Run `launcher.py` and on the first run you will have to enter a bot token and description.  
+If you have entered an invalid token, you will be prompted to enter it again on the next run.
 
-Launch the bot with 'launcher.py'!
-On your first run or if the token supplied was deemed invalid, you will be prompted to enter it.
+See [this webpage](https://discordpy.readthedocs.io/en/latest/discord.html "discord.py docs") for help on creating a bot application.
 
-You can further modify the settings in the config.json file created upon first-run.
-Enjoy!
+## Requirements
+
+* Python 3.5.3+
+* discord.py 1.0.0+
+* pysqlite3

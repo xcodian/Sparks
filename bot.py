@@ -10,6 +10,7 @@ from aiohttp.client_exceptions import ClientConnectionError
 import botdata as bd
 from debug import cOut, end
 
+
 class Sparks(commands.AutoShardedBot):
     def __init__(self):
         super().__init__(command_prefix=None, description=bd.conf["description"])
@@ -39,7 +40,6 @@ class Sparks(commands.AutoShardedBot):
         except Exception as e:
             cOut("Launch error: {}".format(e))
             raise end()
-
 
     async def on_connect(self):
         cOut("Connection established with latency: {}ms".format(int(self.latency * 1000)))
@@ -92,8 +92,10 @@ class Sparks(commands.AutoShardedBot):
         cOut("Finished loading modules. ({}/{} Successful)".format(success, total))
 
     def welcome(self, guild):
-        return discord.Embed(color=discord.Color.blue(),
-                             description=":white_check_mark: ``Thanks for adding me to your guild, '{}'!``".format(guild.name))
+        return discord.Embed(
+            color=discord.Color.blue(),
+            description=":white_check_mark: ``Thanks for adding me to your guild, '{}'!``".format(guild.name),
+        )
 
 
 if __name__ == "__main__":
