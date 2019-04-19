@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 import time
 
 import discord
@@ -19,9 +20,11 @@ class Status(commands.Cog):
     @commands.command(brief="Get some info about the bot.")
     async def info(self, ctx):
         embed = discord.Embed(colour=discord.Colour.blurple())
-        uptime = int(time.time() - self.bot.startTime)
+        embed.description = "A Discord bot created using [discord.py](https://github.com/Rapptz/discord.py)"
 
-        embed.description = "Uptime: {} seconds".format(uptime)
+        uptime = int(time.time() - self.bot.startTime)
+        embed.add_field(name="Uptime", value="{} seconds".format(uptime))
+        embed.set_author(name="Sparks", url="https://github.com/xxcodianxx/Sparks")
         await ctx.send(embed=embed)
 
 
