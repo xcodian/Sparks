@@ -2,6 +2,7 @@
 
 import json
 import os
+import time
 
 import discord
 from aiohttp.client_exceptions import ClientConnectionError
@@ -57,6 +58,7 @@ class Sparks(commands.AutoShardedBot):
         cOut("Connected to {} guilds.\n-----".format(len(self.guilds)))
 
         self.load_all()
+        self.startTime = time.time()
 
     async def get_prefix(self, message):
         if bd.getServer(message.guild.id) is None:
