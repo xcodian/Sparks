@@ -19,7 +19,7 @@ class Status(commands.Cog):
         embed = discord.Embed(color=discord.Color.blurple())
 
         uptime = int(time.time() - self.bot.startTime)
-        embed.add_field(name=":clock2: **Uptime:**".format(uptime), value="``{}s``")
+        embed.add_field(name=":clock2: **Bot Uptime:**".format(uptime), value="``{}s``".format(uptime))
         await ctx.send(embed=embed)
 
 def setup(bot):
