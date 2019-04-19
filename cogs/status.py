@@ -7,7 +7,7 @@ class Status(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="ping", brief="Get the connection latency.")
+    @commands.command(brief="Get the connection latency.")
     async def ping(self, ctx):
         embed = discord.Embed(
             description=":stopwatch: {}ms".format(int(self.bot.latency * 1000)), color=discord.Colour.blurple()

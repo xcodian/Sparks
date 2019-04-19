@@ -8,7 +8,7 @@ class Owner(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(brief="Loads a cog")
     @commands.is_owner()
     async def load(self, ctx, cog: str):
         try:
@@ -22,7 +22,7 @@ class Owner(commands.Cog):
         else:
             return await ctx.send(":white_check_mark: Successfully loaded {}".format(cog))
 
-    @commands.command()
+    @commands.command(brief="Reloads a cog")
     @commands.is_owner()
     async def reload(self, ctx, cog: str):
         try:
@@ -38,7 +38,7 @@ class Owner(commands.Cog):
         else:
             return await ctx.send(":white_check_mark: Successfully reloaded {}".format(cog))
 
-    @commands.command()
+    @commands.command(brief="Unloads a cog")
     @commands.is_owner()
     async def unload(self, ctx, cog: str):
         try:
