@@ -58,7 +58,7 @@ class Sparks(commands.AutoShardedBot):
         cOut("Connected to {} guilds.\n-----".format(len(self.guilds)))
 
         self.load_all()
-        self.startTime = time.time()
+        self.startTime = [str(time.localtime()[2]), str(time.localtime()[3]), str(time.localtime()[4]), str(time.localtime()[5])]
 
     async def get_prefix(self, message):
         if bd.getServer(message.guild.id) is None:
