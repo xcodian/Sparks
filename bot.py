@@ -58,7 +58,7 @@ class Sparks(commands.AutoShardedBot):
         cOut("Connected to {} guilds.\n-----".format(len(self.guilds)))
 
         self.load_all()
-        self.startTime = [str(time.localtime()[2]), str(time.localtime()[3]), str(time.localtime()[4]), str(time.localtime()[5])]
+        self.startTime = time.time()
 
     async def get_prefix(self, message):
         if bd.getServer(message.guild.id) is None:
@@ -72,18 +72,6 @@ class Sparks(commands.AutoShardedBot):
 
     async def on_guild_remove(self, guild):
         bd.delServer(guild.id)
-
-    async def on_command_error(self, ctx, error):
-        if hasattr(ctx.command, "on_error"):
-            return
-
-        if ctx.cog is not None:
-            if commands.Cog._get_overridden_method(ctx.cog.cog_command_error) is not None:
-                return
-
-        msg = str(getattr(error, "original", error))  # Get original error message from CommandInvokeErrors
-        embed = error(msg)
-        return await ctx.send(embed=embed)
 
     #  N O N  -  A S Y N C  #
 
