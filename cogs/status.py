@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+import time
+
 import discord
 from discord.ext import commands
-import time
+
 
 class Status(commands.Cog):
     def __init__(self, bot):
@@ -14,13 +16,14 @@ class Status(commands.Cog):
         )
         await ctx.send(embed=embed)
 
-    @commands.command(name="info", brief="Get some info about the bot.")
+    @commands.command(brief="Get some info about the bot.")
     async def info(self, ctx):
         embed = discord.Embed(color=discord.Color.blurple())
-
         uptime = int(time.time() - self.bot.startTime)
-        embed.add_field(name=":clock2: **Bot Uptime:**".format(uptime), value="``{}s``".format(uptime))
+
+        embed.description = uptime
         await ctx.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Status(bot))
