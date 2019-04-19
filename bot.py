@@ -5,11 +5,11 @@ import os
 import time
 
 import discord
-from discord.ext import commands
 from aiohttp.client_exceptions import ClientConnectionError
+from discord.ext import commands
 
 import botdata as bd
-from debug import cOut, end
+from debug import cOut, end, error
 
 
 class Sparks(commands.AutoShardedBot):
@@ -73,6 +73,18 @@ class Sparks(commands.AutoShardedBot):
     async def on_guild_remove(self, guild):
         bd.delServer(guild.id)
 
+    async def on_command_error(self, ctx, error):
+        if hasattr(ctx.command, "on_error"):
+            return
+
+        if ctx.cog is not None:
+            if commands.Cog._get_overridden_method(ctx.cog.cog_command_error) is not None:
+                return
+
+        msg = str(getattr(error, "original", error))  # Get original error message from CommandInvokeErrors
+        embed = error(msg)
+        return await ctx.send(embed=embed)
+
     #  N O N  -  A S Y N C  #
 
     def load_module(self, module):
@@ -95,7 +107,7 @@ class Sparks(commands.AutoShardedBot):
 
     def welcome(self, guild):
         return discord.Embed(
-            color=discord.Color.blue(),
+            colour=discord.Colour.blue(),
             description=":white_check_mark: ``Thanks for adding me to your guild, '{}'!``".format(guild.name),
         )
 

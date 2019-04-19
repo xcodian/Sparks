@@ -1,5 +1,8 @@
+# -*- coding: utf-8 -*-
+
 import discord
 from discord.ext import commands
+
 
 def cOut(msg):
     import time
@@ -48,5 +51,6 @@ def flagParse(txt, acc_flags):
 
     return output
 
-def error(text):
-    return discord.Embed(description=str(text), color=0xe06c75)
+
+def error(text: str):
+    return discord.Embed(title="An error occurred!", description="```{}```".format(text), colour=0xE06C75)
