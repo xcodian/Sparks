@@ -34,14 +34,21 @@ class ErrorHandler(commands.Cog):
 
             await ctx.send(embed=error(msg))
 
+        elif isinstance(e, commands.CheckFailure):
+            await ctx.send(embed=error(":warning: The bot is currently in maintenance mode! Please try again later."))
+
         elif isinstance(e, commands.CommandNotFound):
             await ctx.message.add_reaction("❔")
             await asyncio.sleep(2)
             await ctx.message.remove_reaction("❔", self.bot.user)
 
         else:
-            await ctx.send(embed=error("An internal error has occurred! This isn't your fault, and will probably be fixed in the next update. Feel free to raise an issue on https://github.com/xxcodianxx/Sparks if this issue is persistent."))
-            traceback.print_exception(type(e), e, e.__traceback__)
+            await self.internal_error(e, ctx)
+
+    async def internal_error(self, e, ctx):
+        await ctx.send(embed=error(
+            "An internal error has occurred! This isn't your fault, and will probably be fixed in the next update. Feel free to raise an issue on https://github.com/xxcodianxx/Sparks if this issue is persistent."))
+        traceback.print_exception(type(e), e, e.__traceback__)
 
 
 def setup(bot):

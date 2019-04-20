@@ -23,6 +23,8 @@ class Sparks(commands.AutoShardedBot):
             print("\n-----")
             cOut("Starting bot session...")
             self.maintenance = False
+
+            self.add_check(self.maintenance_mode)
             self.run(bd.conf["token"])
 
         except discord.LoginFailure as e:
@@ -65,15 +67,6 @@ class Sparks(commands.AutoShardedBot):
         self.load_all()
         self.startTime = time.time()
 
-    async def on_message(self, message):
-        if message.author.bot:
-            return
-
-        if not self.maintenance or await self.is_owner(message.author):
-            await self.process_commands(message)
-        else:
-            await message.channel.send(embed=error("The bot is currently in maintenance mode. Please try again later."))
-
     async def get_prefix(self, message):
         if bd.getServer(message.guild.id) is None:
             bd.addServer(message.guild.id)
@@ -84,10 +77,11 @@ class Sparks(commands.AutoShardedBot):
         bd.addServer(guild.id)
         await guild.owner.send(embed=self.welcome(guild))
 
-
     async def on_guild_remove(self, guild):
         bd.delServer(guild.id)
 
+    async def maintenance_mode(self, ctx):
+        return (not self.maintenance) or (await self.is_owner(ctx.author))
 
     #  N O N  -  A S Y N C  #
 
@@ -98,7 +92,7 @@ class Sparks(commands.AutoShardedBot):
             return True
         except Exception as e:
             cOut("Failed to load module {}: {}".format(module, e))
-            return e
+            return False
 
 
     def load_all(self):
