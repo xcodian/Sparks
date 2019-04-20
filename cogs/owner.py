@@ -10,24 +10,24 @@ class Owner(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group()
+    @commands.group(hidden = True)
     async def maintenance(self, ctx):
         if ctx.invoked_subcommand is None:
             await ctx.send(embed=embedOut("The bot is currently in maintenance mode." if self.bot.maintenance else "The bot is currently out of maintenance mode."))
 
-    @maintenance.command()
+    @maintenance.command(hidden = True)
     @commands.is_owner()
     async def enable(self, ctx):
         msg = set_maintenance(self.bot, True)
         await ctx.send(embed=embedOut(msg))
 
-    @maintenance.command()
+    @maintenance.command(hidden = True)
     @commands.is_owner()
     async def disable(self, ctx):
         msg = set_maintenance(self.bot, False)
         await ctx.send(embed=embedOut(msg))
 
-    @maintenance.command()
+    @maintenance.command(hidden = True)
     @commands.is_owner()
     async def toggle(self, ctx):
         if self.bot.maintenance:
@@ -36,7 +36,7 @@ class Owner(commands.Cog):
             msg = set_maintenance(self.bot, True)
         await ctx.send(embed=embedOut(msg))
 
-    @commands.command(name="rebuild")
+    @commands.command(name="rebuild", hidden = True)
     @commands.is_owner()
     async def rebuild(self, ctx, *, args = ""):
         f = flagParse(args, {"-all":0})
@@ -70,7 +70,7 @@ class Owner(commands.Cog):
             await ctx.send(embed=embedOut(set_maintenance(self.bot, False)))
 
     @commands.is_owner()
-    @commands.command(brief = "Run as another user.")
+    @commands.command(brief = "Run as another user.", hidden = True)
     async def sudo(self, ctx, user, *, cmd):
         sudo_msg = ctx.message
         try:
