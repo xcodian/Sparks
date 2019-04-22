@@ -54,7 +54,7 @@ class Sparks(commands.AutoShardedBot):
         cOut("Client has lost connection.")
 
 
-    async def on_resume(self):
+    async def on_resumed(self):
         cOut("Client has regained connection.")
 
 
