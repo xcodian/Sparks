@@ -6,28 +6,35 @@ from debug import cOut, error, embedOut, flagParse, survey, set_maintenance
 import botdata as bd
 import asyncio
 
+
 class Owner(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(hidden = True)
+    @commands.group(hidden=True)
     async def maintenance(self, ctx):
         if ctx.invoked_subcommand is None:
-            await ctx.send(embed=embedOut("The bot is currently in maintenance mode." if self.bot.maintenance else "The bot is currently out of maintenance mode."))
+            await ctx.send(
+                embed=embedOut(
+                    "The bot is currently in maintenance mode."
+                    if self.bot.maintenance
+                    else "The bot is currently out of maintenance mode."
+                )
+            )
 
-    @maintenance.command(hidden = True)
+    @maintenance.command(hidden=True)
     @commands.is_owner()
     async def enable(self, ctx):
         msg = set_maintenance(self.bot, True)
         await ctx.send(embed=embedOut(msg))
 
-    @maintenance.command(hidden = True)
+    @maintenance.command(hidden=True)
     @commands.is_owner()
     async def disable(self, ctx):
         msg = set_maintenance(self.bot, False)
         await ctx.send(embed=embedOut(msg))
 
-    @maintenance.command(hidden = True)
+    @maintenance.command(hidden=True)
     @commands.is_owner()
     async def toggle(self, ctx):
         if self.bot.maintenance:
@@ -36,10 +43,10 @@ class Owner(commands.Cog):
             msg = set_maintenance(self.bot, True)
         await ctx.send(embed=embedOut(msg))
 
-    @commands.command(name="rebuild", hidden = True)
+    @commands.command(name="rebuild", hidden=True)
     @commands.is_owner()
-    async def rebuild(self, ctx, *, args = ""):
-        f = flagParse(args, {"-all":0})
+    async def rebuild(self, ctx, *, args=""):
+        f = flagParse(args, {"-all": 0})
 
         if f == commands.MissingRequiredArgument:
             raise commands.MissingRequiredArgument
@@ -56,7 +63,9 @@ class Owner(commands.Cog):
 
                 msg = await ctx.send(embed=embedOut("Rebuilding database..."))
                 bd.rebuild_all(self.bot.guilds)
-                await msg.edit(embed=embedOut(":white_check_mark: Rebuilt database for ``{}`` guilds.".format(len(self.bot.guilds))))
+                await msg.edit(
+                    embed=embedOut(":white_check_mark: Rebuilt database for ``{}`` guilds.".format(len(self.bot.guilds)))
+                )
 
                 await ctx.send(embed=embedOut(set_maintenance(self.bot, False)))
 
@@ -70,7 +79,7 @@ class Owner(commands.Cog):
             await ctx.send(embed=embedOut(set_maintenance(self.bot, False)))
 
     @commands.is_owner()
-    @commands.command(brief = "Run as another user.", hidden = True)
+    @commands.command(brief="Run as another user.", hidden=True)
     async def sudo(self, ctx, user, *, cmd):
         sudo_msg = ctx.message
         try:
@@ -85,6 +94,7 @@ class Owner(commands.Cog):
 
         sudo_ctx = await self.bot.get_context(sudo_msg)
         await self.bot.invoke(sudo_ctx)
+
 
 def setup(bot):
     bot.add_cog(Owner(bot))

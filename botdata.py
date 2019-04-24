@@ -84,9 +84,11 @@ def modServer(sid, col, newvalue):
     except Exception as e:
         return e
 
+
 def rebuild_all(guilds):
     for guild in guilds:
         rebuild_one(guild.id)
+
 
 def rebuild_one(sid):
     backup = getServer(sid)
@@ -101,6 +103,7 @@ def rebuild_one(sid):
     for k, v in zip(backup.keys(), backup.values()):
         modServer(sid, k, v)
     return True
+
 
 if __name__ == "__main__":
     raise end()

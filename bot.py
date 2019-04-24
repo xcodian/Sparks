@@ -45,18 +45,14 @@ class Sparks(commands.AutoShardedBot):
             cOut("Launch error: {}".format(e))
             raise end()
 
-
     async def on_connect(self):
         cOut("Connection established with latency: {}ms".format(int(self.latency * 1000)))
-
 
     async def on_disconnect(self):
         cOut("Client has lost connection.")
 
-
     async def on_resumed(self):
         cOut("Client has regained connection.")
-
 
     async def on_ready(self):
         cOut("Bot is now accepting commands.\n-----")
@@ -94,7 +90,6 @@ class Sparks(commands.AutoShardedBot):
             cOut("Failed to load module {}: {}".format(module, e))
             return False
 
-
     def load_all(self):
         success, total = 0, 0
 
@@ -103,7 +98,6 @@ class Sparks(commands.AutoShardedBot):
             if self.load_module(i):
                 success += 1
         cOut("Finished loading modules. ({}/{} Successful)".format(success, total))
-
 
     def welcome(self, guild):
         return discord.Embed(

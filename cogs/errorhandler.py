@@ -5,13 +5,14 @@ from debug import error
 import traceback
 import asyncio
 
+
 class ErrorHandler(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, e):
-        if hasattr(ctx.command, 'on_error'):
+        if hasattr(ctx.command, "on_error"):
             return
 
         elif isinstance(e, commands.MissingRequiredArgument):
@@ -46,8 +47,11 @@ class ErrorHandler(commands.Cog):
             await self.internal_error(e, ctx)
 
     async def internal_error(self, e, ctx):
-        await ctx.send(embed=error(
-            "An internal error has occurred! This isn't your fault, and will probably be fixed in the next update. Feel free to raise an issue on https://github.com/xxcodianxx/Sparks if this issue is persistent."))
+        await ctx.send(
+            embed=error(
+                "An internal error has occurred! This isn't your fault, and will probably be fixed in the next update. Feel free to raise an issue on https://github.com/xxcodianxx/Sparks if this issue is persistent."
+            )
+        )
         traceback.print_exception(type(e), e, e.__traceback__)
 
 

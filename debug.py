@@ -61,18 +61,22 @@ def flagParse(txt, acc_flags):
 def error(text: str):
     return discord.Embed(description="{}".format(text), colour=0xE06C75)
 
+
 def embedOut(text: str):
     return discord.Embed(description="{}".format(text), colour=discord.Colour.green())
 
+
 async def survey(bot, ctx, timeout=10):
     try:
+
         def check(m):
             return ctx.author == m.author
 
-        msg = await bot.wait_for('message', timeout=timeout, check=check)
+        msg = await bot.wait_for("message", timeout=timeout, check=check)
         return msg
     except asyncio.TimeoutError:
         return asyncio.TimeoutError
+
 
 def set_maintenance(bot, value):
     bot.maintenance = value
