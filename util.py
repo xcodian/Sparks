@@ -26,11 +26,15 @@ def flagParse(txt, acc_flags):
     output = {}
     demand = 0
     belongsto = None
+    accept_all = False
 
     txt = txt.lstrip(" ").rstrip(" ")
 
     if txt == "":
         return {}
+
+    if txt.split(" ")[0] == "*":
+        accept_all = True
 
     for i in txt.split(" "):
         if (i in acc_flags) and demand == 0:
@@ -40,10 +44,11 @@ def flagParse(txt, acc_flags):
 
             # we don't wanna accept that one again
             del acc_flags[i]
+            accept_all = False
 
         else:
             # is arg
-            if demand == 0:  # exceeds accepted args for the flag; no demand
+            if demand == 0 and not accept_all:  # exceeds accepted args for the flag; no demand
                 return commands.BadArgument
 
             else:

@@ -16,7 +16,9 @@ class ErrorHandler(commands.Cog):
             return
 
         elif isinstance(e, commands.MissingRequiredArgument):
-            await ctx.send(embed=error("Missing required argument."))
+            err = "Missing required argument '{}'.".format(e.param) if e.param else "Missing Required Argument"
+            await ctx.send(embed=error(err))
+
 
         elif isinstance(e, commands.MissingPermissions):
             await ctx.send(embed=error("You don't have the permissions to do this!"))
@@ -36,7 +38,10 @@ class ErrorHandler(commands.Cog):
             await ctx.send(embed=error(msg))
 
         elif isinstance(e, commands.CheckFailure):
-            await ctx.send(embed=error(":warning: The bot is currently in maintenance mode! Please try again later."))
+            if self.bot.maintenance:
+                await ctx.send(embed=error(":warning: The bot is currently in maintenance mode! Please try again later."))
+            else:
+                await self.internal_error(e, ctx)
 
         elif isinstance(e, commands.CommandNotFound):
             await ctx.message.add_reaction("❔")

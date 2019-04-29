@@ -1,10 +1,9 @@
 import discord
 from discord.ext import commands
-from util import error
+from util import error, flagParse
 
 import traceback
 import asyncio
-
 
 class Help(commands.Cog):
     def __init__(self, bot):
@@ -17,47 +16,102 @@ class Help(commands.Cog):
         
         **Parameters**
         ``[command]`` | Command to get help about, can be left blank.
+        ``-showhidden`` | Flag that shows all of the bot commands, even hidden ones.
 
         """,
-        help="{}help [command]",
+        usage = "[command]  [-showhidden]",
+        brief = "View help for bot commands."
     )
-    async def help(self, ctx, command=None):
-        async def getEmbed(cmds, page, pos, ignore_hidden=True):
+    async def help(self, ctx, *, args = None):
+        def getEmbed(cmds, page, pos, ignore_hidden=True):
             if page is None:
                 embed = discord.Embed(colour=discord.Color.blurple(), title="Commands")
-                embed.description = """
-                
-                :arrow_up: - ``Move selection up.``
-                :arrow_down: - ``Move selection down.``
-                :arrow_right: - ``View selected command.``
-                :arrow_left: - ``Go back to selection menu.``
-                """
+                embed.description = """``Use the arrows to navigate the commands.``"""
 
                 for cmd in cmds:
                     if not cmd.hidden or not ignore_hidden:
                         embed.add_field(name=cmd.name.capitalize(), value=cmd.brief or "No Description", inline=False)
 
+                embed.set_field_at(pos, name="[**{}**]".format(embed.fields[pos].name), value=embed.fields[pos].value, inline=embed.fields[pos].inline)
+
             else:
-                self.cmd = self.bot.get_command(page)
-                if self.cmd is None:
+                cmd = self.bot.get_command(page)
+                if cmd is None:
                     return commands.CommandNotFound
 
-                embed = discord.Embed(colour=discord.Color.blurple(), title="Command: {}".format(self.cmd.name.capitalize()))
-                embed.description = (
-                    "```{}```{}".format(self.cmd.help.format(await self.bot.get_prefix(ctx.message)), self.cmd.description)
-                    or "No information provided."
-                )
+                usage = cmd.usage if cmd.usage else ""
+
+                embed = discord.Embed(colour=discord.Color.blurple())
+                embed.title = "```{}{} {}```".format(ctx.prefix, cmd.name, usage)
+                embed.description = cmd.description or cmd.brief or "No description"
+                embed.set_author(name = "Command: {}".format(cmd.name.capitalize()))
 
             return embed
 
         self.cmdlist = sorted(self.bot.commands, key=lambda x: x.name)
 
-        emb = await getEmbed(self.cmdlist, command, 0)
+        def checkflags(args):
+            ignorehidden = True
+            if args:
+                if args.startswith("-"):
+                    flags = flagParse(args, {"-showhidden": 0})
+
+                    if flags == commands.BadArgument:
+                        raise commands.BadArgument()
+
+                    if flags == commands.MissingRequiredArgument:
+                        raise commands.MissingRequiredArgument()
+
+                    if "-showhidden" in flags.keys():
+                        ignorehidden = False
+                        args = None
+
+            return getEmbed(self.cmdlist, args, 0, ignorehidden), ignorehidden
+
+
+        curpage = args
+        curpos = 0
+        emb, ighidden= checkflags(args)
+
         if emb == commands.CommandNotFound:
             raise commands.BadArgument("Command not found.")
 
-        await ctx.send(embed=emb)
+        msg = await ctx.send(embed=emb)
 
+        navpanel = list('◀🔽🔼▶')
+        for i in navpanel:
+            await msg.add_reaction(i)
+
+        while True:
+            def check(reaction, user):
+                return reaction.emoji in navpanel and user == ctx.author and reaction.message.id == msg.id
+            try:
+                reaction, user = await self.bot.wait_for("reaction_add", timeout=60, check=check)
+                await msg.remove_reaction(reaction, user)
+            except asyncio.TimeoutError:
+                break
+
+            if reaction.emoji == navpanel[0]:
+                if not curpage is None:
+                    curpage = None
+                    await msg.edit(embed = getEmbed(self.cmdlist, curpage, curpos, ighidden))
+
+            if reaction.emoji == navpanel[3]:
+                if curpage is None:
+                    curpage = msg.embeds[0].fields[curpos].name.lower().lstrip("[**").rstrip("**]")
+                    await msg.edit(embed=getEmbed(self.cmdlist, curpage, curpos, ighidden))
+
+            if reaction.emoji == navpanel[2]:
+                if curpos > 0:
+                    curpos-=1
+                    await msg.edit(embed=getEmbed(self.cmdlist, curpage, curpos, ighidden))
+
+            if reaction.emoji == navpanel[1]:
+                if curpos+1 < len(msg.embeds[0].fields):
+                    curpos += 1
+                    await msg.edit(embed=getEmbed(self.cmdlist, curpage, curpos, ighidden))
+
+        await msg.clear_reactions()
 
 def setup(bot):
     bot.add_cog(Help(bot))

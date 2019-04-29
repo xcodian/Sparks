@@ -79,17 +79,9 @@ class Owner(commands.Cog):
             await ctx.send(embed=embedOut(set_maintenance(self.bot, False)))
 
     @commands.is_owner()
-    @commands.command(brief="Run as another user.", hidden=True)
-    async def sudo(self, ctx, user, *, cmd):
+    @commands.command(brief="Run as another user.", hidden=True, usage="<user>")
+    async def sudo(self, ctx, user:discord.Member, *, cmd):
         sudo_msg = ctx.message
-        try:
-            sudo_msg.author = ctx.guild.get_member(int(user.replace("<@", "").replace(">", "")))
-        except:
-            sudo_msg.author = None
-
-        if sudo_msg.author is None:
-            raise commands.BadArgument("user")
-
         sudo_msg.content = cmd
 
         sudo_ctx = await self.bot.get_context(sudo_msg)
