@@ -9,7 +9,7 @@ from aiohttp.client_exceptions import ClientConnectionError
 from discord.ext import commands
 
 import botdata as bd
-from debug import cOut, end, error
+from util import cOut, end, error
 
 
 class Sparks(commands.AutoShardedBot):

@@ -2,7 +2,7 @@
 
 import discord
 from discord.ext import commands
-from debug import cOut, error, embedOut, flagParse, survey, set_maintenance
+from util import cOut, error, embedOut, flagParse, survey, set_maintenance
 import botdata as bd
 import asyncio
 

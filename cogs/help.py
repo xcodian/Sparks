@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from debug import error
+from util import error
 
 import traceback
 import asyncio

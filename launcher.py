@@ -18,7 +18,7 @@ def launch():
         from discord.ext import commands
         import sqlite3
 
-        import debug
+        import util
 
     except ImportError as e:
         print("Dependency error: {}".format(e))

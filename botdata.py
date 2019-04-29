@@ -4,7 +4,7 @@ import json
 import sqlite3
 import time
 
-from debug import cOut, end
+from util import cOut, end
 import bot
 
 
