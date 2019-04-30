@@ -10,6 +10,44 @@ class Help(commands.Cog):
         self.bot = bot
         self.bot.remove_command("help")
 
+    async def mainMenu(self, ctx, command_list : list, cursor_pos : int):
+        embed = discord.Embed(
+            colour = discord.Color.blurple(),
+            title = "Bot Commands",
+            description="``Use the arrows to navigate the list``"
+        )
+
+        for idx, command in enumerate(command_list):
+            short_desc = str(command.brief) or "No Information Provided."
+            command_name = "**[ {} ]**".format(command.name.capitalize()) if idx == cursor_pos else command.name.capitalize()
+
+            embed.add_field(name = command_name, value = short_desc, inline = False)
+
+        return embed
+
+    async def commandEntry(self, ctx, command : commands.Command):
+        embed = discord.Embed(
+            colour = discord.Color.blurple(),
+            title = "Command: {}".format(command.name.capitalize()),
+        )
+
+        embed.description = "```{}{} {}```\n".format(ctx.prefix, command.name, command.usage or "")
+        embed.description += "{}".format(command.description or command.brief or "No Information Provided.")
+
+        return embed
+
+    async def waitForAction(self, ctx, message, nav : dict, timeout = 60):
+        def check(reaction, user):
+            return (str(reaction.emoji) in nav.keys()) and (user == ctx.author) and (reaction.message.id == message.id)
+
+        try:
+            reaction, user = await self.bot.wait_for("reaction_add", timeout = timeout, check = check)
+        except asyncio.TimeoutError:
+            return asyncio.TimeoutError, None, None
+
+        return nav[str(reaction)], reaction, user
+
+
     @commands.command(
         description="""
         *Displays information about commands that can be executed through the bot. \n``command`` parameter can be left blank to view all commands.*
@@ -22,96 +60,84 @@ class Help(commands.Cog):
         usage = "[command]  [-showhidden]",
         brief = "View help for bot commands."
     )
-    async def help(self, ctx, *, args = None):
-        def getEmbed(cmds, page, pos, ignore_hidden=True):
-            if page is None:
-                embed = discord.Embed(colour=discord.Color.blurple(), title="Commands")
-                embed.description = """``Use the arrows to navigate the commands.``"""
+    async def help(self, ctx, help_object = None):
 
-                for cmd in cmds:
-                    if not cmd.hidden or not ignore_hidden:
-                        embed.add_field(name=cmd.name.capitalize(), value=cmd.brief or "No Description", inline=False)
+        # 'await' expressions in comprehensions are not supported in Python 3.5, considering upgrade?
+        cmdlist = []
+        for command in sorted(self.bot.commands, key = lambda x: x.name):
+            if await command.can_run(ctx):
+                cmdlist.append(command)
 
-                embed.set_field_at(pos, name="[**{}**]".format(embed.fields[pos].name), value=embed.fields[pos].value, inline=embed.fields[pos].inline)
+        cursor = 0
+        page = "main"
+
+        if help_object is None:
+            help_message = await ctx.send(embed = await self.mainMenu(ctx, cmdlist, cursor))
+
+        else:
+            if help_object not in [command.name for command in cmdlist]:
+                raise commands.BadArgument("Command '{}' does not exist.".format(help_object))
+
+            elif  not self.bot.get_command(help_object).can_run(ctx):
+                raise commands.MissingPermissions("Command help entry.")
 
             else:
-                cmd = self.bot.get_command(page)
-                if cmd is None:
-                    return commands.CommandNotFound
+                help_message = await ctx.send(embed = await self.commandEntry(ctx, self.bot.get_command(help_object)))
 
-                usage = cmd.usage if cmd.usage else ""
+        def cursor_down():
+            nonlocal cursor
+            if cursor + 1 < len(cmdlist):
+                cursor += 1
 
-                embed = discord.Embed(colour=discord.Color.blurple())
-                embed.title = "```{}{} {}```".format(ctx.prefix, cmd.name, usage)
-                embed.description = cmd.description or cmd.brief or "No description"
-                embed.set_author(name = "Command: {}".format(cmd.name.capitalize()))
+        def cursor_up():
+            nonlocal cursor
+            if cursor - 1 > -1:
+                cursor -= 1
 
-            return embed
+        def view_mainmenu():
+            nonlocal page
+            page = "main"
 
-        self.cmdlist = sorted(self.bot.commands, key=lambda x: x.name)
+        def view_command():
+            nonlocal page
+            page = cmdlist[cursor]
 
-        def checkflags(args):
-            ignorehidden = True
-            if args:
-                if args.startswith("-"):
-                    flags = flagParse(args, {"-showhidden": 0})
+        navpanel = {
+            "⬆": cursor_up,
+            "⬇": cursor_down,
+            "⬅": view_mainmenu,
+            "➡": view_command
+        }
 
-                    if flags == commands.BadArgument:
-                        raise commands.BadArgument()
-
-                    if flags == commands.MissingRequiredArgument:
-                        raise commands.MissingRequiredArgument()
-
-                    if "-showhidden" in flags.keys():
-                        ignorehidden = False
-                        args = None
-
-            return getEmbed(self.cmdlist, args, 0, ignorehidden), ignorehidden
-
-
-        curpage = args
-        curpos = 0
-        emb, ighidden= checkflags(args)
-
-        if emb == commands.CommandNotFound:
-            raise commands.BadArgument("Command not found.")
-
-        msg = await ctx.send(embed=emb)
-
-        navpanel = list('◀🔽🔼▶')
-        for i in navpanel:
-            await msg.add_reaction(i)
+        for emoji in ["⬅", "⬆", "⬇", "➡"]:
+            await help_message.add_reaction(emoji)
 
         while True:
-            def check(reaction, user):
-                return reaction.emoji in navpanel and user == ctx.author and reaction.message.id == msg.id
-            try:
-                reaction, user = await self.bot.wait_for("reaction_add", timeout=60, check=check)
-                await msg.remove_reaction(reaction, user)
-            except asyncio.TimeoutError:
+            control_callback, reaction, user = await self.waitForAction(ctx, help_message, navpanel)
+            if control_callback == asyncio.TimeoutError:
                 break
 
-            if reaction.emoji == navpanel[0]:
-                if not curpage is None:
-                    curpage = None
-                    await msg.edit(embed = getEmbed(self.cmdlist, curpage, curpos, ighidden))
+            control_callback()
+            await help_message.remove_reaction(reaction, user)
 
-            if reaction.emoji == navpanel[3]:
-                if curpage is None:
-                    curpage = msg.embeds[0].fields[curpos].name.lower().lstrip("[**").rstrip("**]")
-                    await msg.edit(embed=getEmbed(self.cmdlist, curpage, curpos, ighidden))
+            embed = None
+            if page == "main":
+                embed = await self.mainMenu(ctx, cmdlist, cursor)
 
-            if reaction.emoji == navpanel[2]:
-                if curpos > 0:
-                    curpos-=1
-                    await msg.edit(embed=getEmbed(self.cmdlist, curpage, curpos, ighidden))
+            elif isinstance(page, commands.Command):
+                embed = await self.commandEntry(ctx, page)
 
-            if reaction.emoji == navpanel[1]:
-                if curpos+1 < len(msg.embeds[0].fields):
-                    curpos += 1
-                    await msg.edit(embed=getEmbed(self.cmdlist, curpage, curpos, ighidden))
+            if embed is None:
+                break
 
-        await msg.clear_reactions()
+            await help_message.edit(embed=embed)
+
+        # End
+        embed = help_message.embeds[0]
+        embed.colour = discord.Color.dark_grey()
+
+        await help_message.edit(embed=embed)
+        await help_message.clear_reactions()
 
 def setup(bot):
     bot.add_cog(Help(bot))
