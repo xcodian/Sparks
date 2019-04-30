@@ -41,7 +41,7 @@ class ErrorHandler(commands.Cog):
             if self.bot.maintenance:
                 await ctx.send(embed=error(":warning: The bot is currently in maintenance mode! Please try again later."))
             else:
-                await self.internal_error(e, ctx)
+                await ctx.send(embed=error("Command can be executed only by bot developers."))
 
         elif isinstance(e, commands.CommandNotFound):
             await ctx.message.add_reaction("❔")

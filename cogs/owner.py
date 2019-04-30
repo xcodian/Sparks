@@ -2,7 +2,7 @@
 
 import discord
 from discord.ext import commands
-from util import cOut, error, embedOut, flagParse, survey, set_maintenance
+from util import cOut, error, embedOut, flagParse, survey, set_maintenance, is_bot_admin
 import botdata as bd
 import asyncio
 
@@ -23,19 +23,19 @@ class Owner(commands.Cog):
             )
 
     @maintenance.command(hidden=True)
-    @commands.is_owner()
+    @commands.check(is_bot_admin)
     async def enable(self, ctx):
         msg = set_maintenance(self.bot, True)
         await ctx.send(embed=embedOut(msg))
 
     @maintenance.command(hidden=True)
-    @commands.is_owner()
+    @commands.check(is_bot_admin)
     async def disable(self, ctx):
         msg = set_maintenance(self.bot, False)
         await ctx.send(embed=embedOut(msg))
 
     @maintenance.command(hidden=True)
-    @commands.is_owner()
+    @commands.check(is_bot_admin)
     async def toggle(self, ctx):
         if self.bot.maintenance:
             msg = set_maintenance(self.bot, False)
@@ -44,7 +44,7 @@ class Owner(commands.Cog):
         await ctx.send(embed=embedOut(msg))
 
     @commands.command(name="rebuild", hidden=True)
-    @commands.is_owner()
+    @commands.check(is_bot_admin)
     async def rebuild(self, ctx, *, args=""):
         f = flagParse(args, {"-all": 0})
 
@@ -78,14 +78,21 @@ class Owner(commands.Cog):
             await ctx.send(embed=embedOut(":white_check_mark: Rebuilt database for local guild."))
             await ctx.send(embed=embedOut(set_maintenance(self.bot, False)))
 
-    @commands.is_owner()
+    @commands.check(is_bot_admin)
     @commands.command(brief="Run as another user.", hidden=True, usage="<user>")
     async def sudo(self, ctx, user:discord.Member, *, cmd):
         sudo_msg = ctx.message
+
+        if user is None:
+            raise commands.BadArgument("Invalid user.")
+
+        sudo_msg.author = user
         sudo_msg.content = cmd
 
         sudo_ctx = await self.bot.get_context(sudo_msg)
-        await self.bot.invoke(sudo_ctx)
+        response = await self.bot.invoke(sudo_ctx)
+
+        cOut("SUDO: User '{0}' (ID {0.id}) executed '{1}' as '{2}' (ID {2.id}). RESULT: {3}".format(ctx.author, sudo_msg.content, sudo_ctx.author, response))
 
 
 def setup(bot):

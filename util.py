@@ -4,6 +4,7 @@ import discord
 import asyncio
 from discord.ext import commands
 
+import botdata as bd
 
 def cOut(msg):
     import time
@@ -73,7 +74,6 @@ def embedOut(text: str):
 
 async def survey(bot, ctx, timeout=10):
     try:
-
         def check(m):
             return ctx.author == m.author
 
@@ -86,3 +86,6 @@ async def survey(bot, ctx, timeout=10):
 def set_maintenance(bot, value):
     bot.maintenance = value
     return ":unlock: Bot open to public." if not bot.maintenance else ":lock: Bot closed for maintenance."
+
+def is_bot_admin(ctx):
+    return ctx.author.id in [int(i) for i in bd.conf["bot_owners"]]

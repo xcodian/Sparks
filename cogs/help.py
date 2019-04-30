@@ -78,8 +78,9 @@ class Help(commands.Cog):
             if help_object not in [command.name for command in cmdlist]:
                 raise commands.BadArgument("Command '{}' does not exist.".format(help_object))
 
-            elif  not self.bot.get_command(help_object).can_run(ctx):
-                raise commands.MissingPermissions("Command help entry.")
+            elif not self.bot.get_command(help_object).can_run(ctx):
+                await ctx.send(embed=error("You cannot view help for this command as you lack the permissions to execute it."))
+                return
 
             else:
                 help_message = await ctx.send(embed = await self.commandEntry(ctx, self.bot.get_command(help_object)))
