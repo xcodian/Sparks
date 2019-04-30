@@ -7,9 +7,10 @@ import time
 import discord
 from aiohttp.client_exceptions import ClientConnectionError
 from discord.ext import commands
+import asyncio
 
 import botdata as bd
-from util import cOut, end, error
+from util import cOut, end, error, Cycle, format_number
 
 
 class Sparks(commands.AutoShardedBot):
@@ -63,6 +64,8 @@ class Sparks(commands.AutoShardedBot):
         self.load_all()
         self.startTime = time.time()
 
+        self.loop.create_task(self.presence_changer())
+
     async def get_prefix(self, message):
         if bd.getServer(message.guild.id) is None:
             bd.addServer(message.guild.id)
@@ -105,6 +108,26 @@ class Sparks(commands.AutoShardedBot):
             description=":white_check_mark: ``Thanks for adding me to your guild, '{}'!``".format(guild.name),
         )
 
+    def get_total_users(self):
+        count = 0
+        for guild in self.guilds:
+            count += len(guild.members)
+        return count
+
+    async def presence_changer(self):
+        presences = Cycle(
+            [
+                discord.Game(name="with {} Guilds".format(format_number(len(self.guilds)))),
+                discord.Activity(type=discord.ActivityType.watching, name = "{} Users".format(format_number(self.get_total_users()))),
+                discord.Activity(type=discord.ActivityType.listening, name = "the $help command.")
+            ]
+        )
+
+        while True:
+            if self.is_ready():
+                await self.change_presence(activity=presences.current)
+                presences.next()
+                await asyncio.sleep(10)
 
 if __name__ == "__main__":
     print("Please start the program via launcher.py.")
