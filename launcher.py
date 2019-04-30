@@ -32,7 +32,7 @@ def launch():
             config = json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         with open("config.json", "w") as f:
-            model = {"token": "", "default_prefix": "$", "description": ""}
+            model = {"token": "", "default_prefix": "$", "description": "", "bot_owners":[]}
 
             json.dump(model, f, indent=4)
 
@@ -43,6 +43,16 @@ def launch():
 
     if config["token"] is "":
         config["token"] = input("TOKEN: ")
+
+    if len(config["bot_owners"]) < 1:
+        for i in input("BOT OWNERS (split by ','): ").replace(" ", "").split(","):
+            if input("Add id '{}' as bot owner? (y/n): ".format(i)).lower() == "y":
+                config["bot_owners"].append(i)
+                print("Added id '{}' to bot owners list.".format(i))
+
+            else:
+                print("Skipping id '{}'.".format(i))
+
 
     with open("config.json", "w+") as f:
         json.dump(config, f, indent=4)
