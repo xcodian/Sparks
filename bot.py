@@ -124,10 +124,12 @@ class Sparks(commands.AutoShardedBot):
         )
 
         while True:
-            if self.is_ready():
+            if self.is_ready() and not self.maintenance:
                 await self.change_presence(activity=presences.current)
                 presences.next()
-                await asyncio.sleep(10)
+                await asyncio.sleep(20)
+            elif self.maintenance:
+                await self.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="bot owners only."))
 
 if __name__ == "__main__":
     print("Please start the program via launcher.py.")
