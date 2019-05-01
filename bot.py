@@ -10,7 +10,9 @@ from discord.ext import commands
 import asyncio
 
 import botdata as bd
-from util import cOut, end, error, Cycle, format_number
+
+import util
+from util import cOut, end
 
 
 class Sparks(commands.AutoShardedBot):
@@ -115,10 +117,10 @@ class Sparks(commands.AutoShardedBot):
         return count
 
     async def presence_changer(self):
-        presences = Cycle(
+        presences = util.Cycle(
             [
-                discord.Game(name="with {} Guilds".format(format_number(len(self.guilds)))),
-                discord.Activity(type=discord.ActivityType.watching, name = "{} Users".format(format_number(self.get_total_users()))),
+                discord.Game(name="with {} Guilds".format(util.format_number(len(self.guilds)))),
+                discord.Activity(type=discord.ActivityType.watching, name = "{} Users".format(util.format_number(self.get_total_users()))),
                 discord.Activity(type=discord.ActivityType.listening, name = "the $help command.")
             ]
         )
@@ -127,7 +129,7 @@ class Sparks(commands.AutoShardedBot):
             if self.is_ready() and not self.maintenance:
                 await self.change_presence(activity=presences.current)
                 presences.next()
-                await asyncio.sleep(20)
+                await asyncio.sleep(300)
             elif self.maintenance:
                 await self.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="bot owners only."))
 

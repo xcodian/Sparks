@@ -36,6 +36,9 @@ class Status(commands.Cog):
         embed.set_author(name="Sparks", url="https://github.com/xxcodianxx/Sparks")
         await ctx.send(embed=embed)
 
+    @commands.command(brief = "Invite the bot to your server.")
+    async def invite(self, ctx):
+        await ctx.send("<{}>".format(discord.utils.oauth_url(self.bot.user.id, discord.Permissions(permissions=2146958583))))
 
 def setup(bot):
     bot.add_cog(Status(bot))

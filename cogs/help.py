@@ -1,8 +1,7 @@
 import discord
 from discord.ext import commands
-from util import error, flagParse
 
-import traceback
+from util import error
 import asyncio
 
 class Help(commands.Cog):
@@ -69,21 +68,23 @@ class Help(commands.Cog):
                 cmdlist.append(command)
 
         cursor = 0
-        page = "main"
+        command_active = True
 
         if help_object is None:
             help_message = await ctx.send(embed = await self.mainMenu(ctx, cmdlist, cursor))
+            page = "main"
 
         else:
             if help_object not in [command.name for command in cmdlist]:
                 raise commands.BadArgument("Command '{}' does not exist.".format(help_object))
 
-            elif not self.bot.get_command(help_object).can_run(ctx):
+            elif not await self.bot.get_command(help_object).can_run(ctx):
                 await ctx.send(embed=error("You cannot view help for this command as you lack the permissions to execute it."))
                 return
 
             else:
                 help_message = await ctx.send(embed = await self.commandEntry(ctx, self.bot.get_command(help_object)))
+                page = self.bot.get_command(help_object)
 
         def cursor_down():
             nonlocal cursor
@@ -101,19 +102,25 @@ class Help(commands.Cog):
 
         def view_command():
             nonlocal page
-            page = cmdlist[cursor]
+            if page == "main":
+                page = cmdlist[cursor]
+
+        def stop():
+            nonlocal command_active
+            command_active = False
 
         navpanel = {
             "⬆": cursor_up,
             "⬇": cursor_down,
             "⬅": view_mainmenu,
-            "➡": view_command
+            "➡": view_command,
+            "⏹":stop
         }
 
-        for emoji in ["⬅", "⬆", "⬇", "➡"]:
+        for emoji in ["⬅", "⬇", "⬆", "➡", "⏹"]:
             await help_message.add_reaction(emoji)
 
-        while True:
+        while command_active:
             control_callback, reaction, user = await self.waitForAction(ctx, help_message, navpanel)
             if control_callback == asyncio.TimeoutError:
                 break
@@ -137,8 +144,9 @@ class Help(commands.Cog):
         embed = help_message.embeds[0]
         embed.colour = discord.Color.dark_grey()
 
-        await help_message.edit(embed=embed)
         await help_message.clear_reactions()
+        await help_message.edit(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Help(bot))

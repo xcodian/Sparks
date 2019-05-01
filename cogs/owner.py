@@ -2,20 +2,39 @@
 
 import discord
 from discord.ext import commands
-from util import cOut, error, embedOut, flagParse, survey, set_maintenance, is_bot_admin
-import botdata as bd
 import asyncio
+
+import util
+from util import cOut
+import botdata as bd
 
 
 class Owner(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(hidden=True)
+    @commands.group(
+        brief = "Manage the bot maintenance mode.",
+
+        description = """
+                *Bot maintenance disallows the bot to be used by any users other than the bot owners.*
+                *You can use this command to enable, disable and view the status of maintenance mode.*
+                
+                **Parameters**
+                ``[action]`` | Action to perform. Leave blank to view status.
+                
+                **Actions**
+                ``enable``  | Enables maintenance mode.
+                ``disable`` | Disables maintenance mode.
+                ``toggle``  | Toggles maintenance mode.
+                """,
+        usage = "[action]",
+        hidden = True
+    )
     async def maintenance(self, ctx):
         if ctx.invoked_subcommand is None:
             await ctx.send(
-                embed=embedOut(
+                embed=util.embedOut(
                     "The bot is currently in maintenance mode."
                     if self.bot.maintenance
                     else "The bot is currently out of maintenance mode."
@@ -23,30 +42,46 @@ class Owner(commands.Cog):
             )
 
     @maintenance.command(hidden=True)
-    @commands.check(is_bot_admin)
+    @commands.check(util.is_bot_admin)
     async def enable(self, ctx):
-        msg = set_maintenance(self.bot, True)
-        await ctx.send(embed=embedOut(msg))
+        msg = util.set_maintenance(self.bot, True)
+        await ctx.send(embed=util.embedOut(msg))
 
     @maintenance.command(hidden=True)
-    @commands.check(is_bot_admin)
+    @commands.check(util.is_bot_admin)
     async def disable(self, ctx):
-        msg = set_maintenance(self.bot, False)
-        await ctx.send(embed=embedOut(msg))
+        msg = util.set_maintenance(self.bot, False)
+        await ctx.send(embed=util.embedOut(msg))
 
     @maintenance.command(hidden=True)
-    @commands.check(is_bot_admin)
+    @commands.check(util.is_bot_admin)
     async def toggle(self, ctx):
         if self.bot.maintenance:
-            msg = set_maintenance(self.bot, False)
+            msg = util.set_maintenance(self.bot, False)
         else:
-            msg = set_maintenance(self.bot, True)
-        await ctx.send(embed=embedOut(msg))
+            msg = util.set_maintenance(self.bot, True)
+        await ctx.send(embed=util.embedOut(msg))
 
-    @commands.command(name="rebuild", hidden=True)
-    @commands.check(is_bot_admin)
+    @commands.command(
+        brief = "Rebuild the database.",
+
+        description = """
+                *The guild database contains configuration data for all servers the bot is part of.*
+                *This command can rebuild the database and add any servers that have been left out.*
+                
+                **Parameters**
+                ``-all`` | Use with this flag to rebuild ALL guilds the bot is in. Leave blank to rebuild the current server.
+                
+                :information_source: This command may require aditional confirmation.
+                
+                :warning: It is not recommended to execute any other commands while this is running.
+                """,
+        usage = "[-all]",
+        hidden = True
+    )
+    @commands.check(util.is_bot_admin)
     async def rebuild(self, ctx, *, args=""):
-        f = flagParse(args, {"-all": 0})
+        f = util.flagParse(args, {"-all": 0})
 
         if f == commands.MissingRequiredArgument:
             raise commands.MissingRequiredArgument
@@ -56,29 +91,29 @@ class Owner(commands.Cog):
 
         if "-all" in f:
             await ctx.send("```Are you sure that you want to rebuild data records for ALL guilds? (y/N)```")
-            response = await survey(self.bot, ctx)
+            response = await util.survey(self.bot, ctx)
 
             if response != asyncio.TimeoutError and response.content.lower() == "y":
-                await ctx.send(embed=embedOut(set_maintenance(self.bot, True)))
+                await ctx.send(embed=util.embedOut(util.set_maintenance(self.bot, True)))
 
-                msg = await ctx.send(embed=embedOut("Rebuilding database..."))
+                msg = await ctx.send(embed=util.embedOut("Rebuilding database..."))
                 bd.rebuild_all(self.bot.guilds)
                 await msg.edit(
-                    embed=embedOut(":white_check_mark: Rebuilt database for ``{}`` guilds.".format(len(self.bot.guilds)))
+                    embed=util.embedOut(":white_check_mark: Rebuilt database for ``{}`` guilds.".format(len(self.bot.guilds)))
                 )
 
-                await ctx.send(embed=embedOut(set_maintenance(self.bot, False)))
+                await ctx.send(embed=util.embedOut(util.set_maintenance(self.bot, False)))
 
             else:
-                await ctx.send(embed=error("Operation aborted."))
+                await ctx.send(embed=util.error("Operation aborted."))
         else:
-            await ctx.send(embed=embedOut(set_maintenance(self.bot, True)))
+            await ctx.send(embed=util.embedOut(util.set_maintenance(self.bot, True)))
 
             bd.rebuild_one(ctx.guild.id)
-            await ctx.send(embed=embedOut(":white_check_mark: Rebuilt database for local guild."))
-            await ctx.send(embed=embedOut(set_maintenance(self.bot, False)))
+            await ctx.send(embed=util.embedOut(":white_check_mark: Rebuilt database for local guild."))
+            await ctx.send(embed=util.embedOut(util.set_maintenance(self.bot, False)))
 
-    @commands.check(is_bot_admin)
+    @commands.check(util.is_bot_admin)
     @commands.command(brief="Run as another user.", hidden=True, usage="<user>")
     async def sudo(self, ctx, user:discord.Member, *, cmd):
         sudo_msg = ctx.message
